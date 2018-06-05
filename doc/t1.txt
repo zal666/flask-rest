@@ -1,3 +1,28 @@
-hello git
+1. Rest 接口写法
+1) 请求 -> 响应
+   资源    结果
 
-study hardy
+   资源: uri
+
+   动作:   post  上传，新增资源
+           get    查询资源
+           put    修改某一资源
+           patch 修改多个资源
+           delete  删除资源
+
+   结果：json 数据
+
+        jsonify ({})
+
+        json.dumps(obj, cls)   cls 自定义JSONEncoder
+
+            如果数据是list[xxxModel]包含object类对象,
+            则自定义object转json的编码器（JSONEncoder）或
+            声明@propery def json(self): return {}
+
+
+
+1)from flask-restful import API
+
+api = API(APP)
+
