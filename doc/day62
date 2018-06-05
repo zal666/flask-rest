@@ -1,0 +1,172 @@
+1. flask-restful
+
+  1) rest是一种设计规范，
+    为了适应前后端分离（移动端与服务端分离）的 情况，
+    让请求的数据最小化，最优化。
+    提供了资源（Resource）、uri（统一资源标识符）和 动作等概念
+
+  2）在服务端（flask项目）提供一个apis.py声明对Resource的操作
+
+    class UserResource(Resource):
+        # from flask_restful import Resource
+
+        # 声明相关的动作(get,post,put,delete,patch)
+        def get(self):
+            return {}
+
+  3) 为资源添加一个 uri
+    api = Api(app)  # from flask_restful import Api
+    api.add_resource(UserResource, '/user/')
+
+  4) 定制输入和输出
+     定制输入
+     # from flask_restful import reqparse
+
+     parser = reqparse.RequestParser()
+     # 添加输入(请求)参数的说明
+     parser.add_argument('参数名', type=int/str,
+                        required=True, help='验证失败的消息',
+                        location='参数来源(args,form,files,cookies)')
+
+     ＃ 在动作处理函数中，通过parse_args()函数来验证请求参数是否满足条件
+     def get(self):
+        args = self.parser.parse_args()  # 不满足，自动中断请求
+
+        ＃ 满足参数条件， 业务的实现
+        xx = args.get('参数名')
+
+        return {}
+
+
+     # 定制输出参数
+     # from flask_restful import marshal_with, marshal, fields
+     # 声明 users列表中每个元素(User类对象)的输出格式
+     user_fields = {'id':fields.Integer,
+                    'name': fields.String,
+                    'phone': fields.String}
+
+     out_fields = {'msg':fields.String,
+                   'data': fields.Nested(user_fields) }
+
+     1) @marshal_with(out_fields)  # 声明输出的字段
+        def get(self):
+            data = {'msg':'', 'data': users} ＃ users=[<class User>,<class User>]
+            return data
+
+
+     2) marshal(data, fields)
+
+        def get(self):
+            data = {'msg':'', 'data': users}
+            return marshal(data, self.out_fields)
+
+  5） 文件上传
+     前端的核心代码：
+          function uploadImg(file){
+               var formdata = new FormData()  # 默认为multipart/form-data
+               formdata.append('参数名', file )  # file是js的文件类对象
+
+               $.ajax('/upload/',{
+                    type:'post',
+                    data: formdata,
+                    contentType: false, //对上传的数据不做任何编码处理
+                    processData: false, //同上，不做任何的数据处理
+                    dataType: 'json',
+                    success : function(data){
+                        // 文件上传成功后的回调函数
+                    }
+               });
+          }
+
+     后端：
+          class UploadApi(Resource):
+
+            parser = reqparse.RequestParser()
+
+            # from werkzeug.datastructures import FileStorage
+            parser.add_argument('img', type=FileStorage, location='files')
+            def post(self):
+                args = self.parser.parse_args()
+
+                uFile =  args.get('img')
+                # 将上传的文件保存到 服务器的指定文件目录中
+                uFile.save('/users/apple/uploads/'+uFile.filename)
+
+                return {}
+
+            扩展： 在settings.py文件，设计BASE_DIR、STATIC_DIR/MEDIA_DIR
+                1) 获取settings.py文件的绝对路径：
+                   abspath = os.path.abspath(__name__)
+
+                2) 获取settings.py所在目录
+                   base_dir = os.path.dirname(abspath)
+
+                3) 获取settings.py所在目录的static目录
+                   static_dir = os.path.join(base_dir, 'static')
+
+                4) 相对于settings.py所在目录的static目录的uploads位置
+                    media_dir = os.path.join(static_dir, 'uploads')
+
+                5) xml数据：
+                    <datas>
+                        <data>
+                            <users>
+                                <user id=1>
+                                    <phone>177029929922</phone>
+                                    <url>http://11l1l1.mp3</url>
+                                </user>
+                            </users>
+                        </data>
+                    </datas>
+
+2. pycharm中使用git工具将项目提交到github上
+   1） 本地安装git工具
+     ubuntu ：
+        sudo apt install git
+     window:
+        https://git-scm.com/download/win
+
+   2) 在github上注册账号
+
+   3）打开pycharm工具，设置git命令的位置和github账号
+      (window/ubuntu)ctrl+alt+s : 打开设置页面(File->settings设置)
+      (mac)command+, ： 打开设置页面
+
+      在版本控制 Version Control:
+            git :  git 命令所在的位置
+
+           注意： window环境，需要将git命令所在的位置配置到环境变量中
+
+           github: 输入在github上注册的账号和密码
+
+   4） 在github创建一个仓库
+       将仓库的位置： http://sssss/xx.git 复制一下
+
+   5） 在项目的根目录下，初始化本地仓库并添加远程仓库
+       git init
+       git remote add origin https://github.com/disenQF/flask-rest.git
+
+   6) 在本地仓库添加文件
+       git add .   或 git add *
+
+       注意： 不要添加 .idea 文件目录（包含了当前开发工具中相关的环境配置）
+
+   7）提交并推送到 github远程仓库中
+       git commit -m '初始化提交flask-rest项目'
+
+       # 第一次上传时，因为远程仓库不存在master主分支
+       git push --set-upstream origin master
+
+       ＃ 以后再上传时， 不使用--set-upstream参数
+       git push origin master
+
+   8) 在添加文件之后，（开始跟踪某一文件）－ 绿色
+
+      可以撤消跟踪： git reset head 文件名或目录名
+
+
+
+
+
+
+
