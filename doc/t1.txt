@@ -20,9 +20,28 @@
             则自定义object转json的编码器（JSONEncoder）或
             声明@propery def json(self): return {}
 
+2. flask-restful 扩展库
+1） pip install flask-restful
+
+2)from flask-restful import API
+
+  api = API(APP)
+
+3) 创建Resource的子类 Resource 是 flask-restful 中的子类
+  class UserApi(Resource):
+      def get(self):
+        pass
+      def post(self):
+         pass
+      def put(self):
+         pass
+      def patch(self):
+         pass
+      def delete(self):
+         pass
+
+4)  将Resource 资源添加到api 对象中
+     api.add_source(UserApi,'/user/',endpoint='user')
 
 
-1)from flask-restful import API
-
-api = API(APP)
 
